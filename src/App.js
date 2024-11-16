@@ -1,21 +1,47 @@
 import React, {useState,createContext, useEffect} from "react";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { createUserWithEmailAndPassword , signInWithEmailAndPassword,signOut} from "firebase/auth";
-import {auth} from './config/firebase';
+import { onAuthStateChanged, createUserWithEmailAndPassword , signInWithEmailAndPassword,signOut} from "firebase/auth";
+import {auth,app} from './config/firebase';
 import {getDatabase,ref,set,push} from "firebase/database"
 import './App.css';
 import Login from './components/login.js'
 import SignUp from './components/signUp.js'
 import Admin from './components/admin.js'
 
-
 function App() {
   const [inputType,setInputType] = useState('password');
   const [user,setUser] = useState({});
   const [userID,setuserID] = useState("");
+  const [type, setType] = useState('')
 
-  const authHandler = (e) => {
+   useEffect(()=>{
+    const userState = user;
+    onAuthStateChanged(auth, (user) => {
+      console.log(userState);
+      if (user && userState.type === "signup") {
+        const uid = user.uid;
+        const fname = userState.fname;
+        const lname = userState.lname;
+        const db = getDatabase(app);
+        const newDocRef = push(ref(db,`users/${uid}`));
+        set(newDocRef,{
+            "fname": fname,
+            "lname": lname
+          }).then(()=>{
+            console.log('saved')
+          }).catch((error)=>{
+            alert(error.message)
+          })
+            console.log("hi")
+          } else if (user && userState.type === "login"){
+
+            console.log('logging in')
+          } else { console.log('signed out')}
+        });
+      },[])
+
+  const authHandler = async (e) => {
     e.preventDefault();
     const elements = e.target;
     const formData = {};
@@ -23,15 +49,17 @@ function App() {
             if(!field.name) return;
             formData[field.name] = field.value;
         })
-      console.log(formData);
-      if(formData.type ==="admin"){
-        const email = formData.email; 
-        const password = formData.password;
+    console.log(formData);
+    if(formData.type ==="admin"){
+      const email = formData.email; 
+      const password = formData.password;
 
-      }else if(formData.type ==="login"){
+    }else if(formData.type ==="login"){
+
         const email = formData.email; 
         const password = formData.password;
-        signInWithEmailAndPassword(auth, email, password)
+        const type = formData.type;
+        await signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
@@ -39,12 +67,7 @@ function App() {
           console.log(user);
           const email = user.email;
           setuserID({userID : user.uid})
-          setUser({
-            userID,
-            email
-          });
-
-          console.log(user);
+          setUser({ userID, email, type });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -53,14 +76,21 @@ function App() {
           console.log('error code',errorCode)
           console.log('error message',errorMessage)
       });
+      
+    
       }else if(formData.type ==="signup"){
         const email = formData.email; 
         const password = formData.password;
-        createUserWithEmailAndPassword(auth, email, password)
+        const type = formData.type;
+        const fname = formData.fname;
+        const lname = formData.lname;
+        await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-            // Signed up 
             const user = userCredential.user;
+            const userId = user.uid;
             console.log(user)
+            setuserID({userID : user.uid})
+            setUser({ userId, email, type,lname,fname });
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -70,7 +100,7 @@ function App() {
             console.log('error message',errorMessage)
         });
       }
-
+      console.log(user)
   }
 
   const showP = (e) => {

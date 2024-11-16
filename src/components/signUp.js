@@ -32,7 +32,7 @@ export default class SignUp extends Component {
 
 
   render() {
-    console.log(this.props.inputType.inputType)
+    console.log(this.props.inputType)
     return (
       <form onSubmit={this.props.authHandler}>
         <h3>Sign Up</h3>
