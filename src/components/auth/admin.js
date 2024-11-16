@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-import $ from 'jquery';
-
 export default class Admin extends Component {
-  
 
   handleSubmit(e){
     e.preventDefault();

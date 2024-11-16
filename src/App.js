@@ -1,24 +1,33 @@
 import React, {useState,createContext, useEffect} from "react";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate} from 'react-router-dom';
 import { onAuthStateChanged, createUserWithEmailAndPassword , signInWithEmailAndPassword,signOut} from "firebase/auth";
 import {auth,app} from './config/firebase';
 import {getDatabase,ref,set,push} from "firebase/database"
 import './App.css';
-import Login from './components/login.js'
-import SignUp from './components/signUp.js'
-import Admin from './components/admin.js'
+import Login from './components/auth/login.js'
+import SignUp from './components/auth/signUp.js'
+import Admin from './components/auth/admin.js'
+import UserProfile from "./components/userComp/userProfile.js";
 
 function App() {
   const [inputType,setInputType] = useState('password');
   const [user,setUser] = useState({});
-  const [userID,setuserID] = useState("");
-  const [type, setType] = useState('')
+  const [loggedIn,setLoggedIn] = useState(false);
 
-   useEffect(()=>{
+  useEffect( ()=>{
     const userState = user;
-    onAuthStateChanged(auth, (user) => {
-      console.log(userState);
+    const currentUser = auth.currentUser;
+    console.log(auth.currentUser)
+    if(currentUser){
+      console.log(currentUser)
+    } else{
+      console.log("no User")
+    }
+    
+     onAuthStateChanged(auth,  (user) => {
+      console.log(user)
+      console.log(userState,user);
       if (user && userState.type === "signup") {
         const uid = user.uid;
         const fname = userState.fname;
@@ -39,7 +48,7 @@ function App() {
             console.log('logging in')
           } else { console.log('signed out')}
         });
-      },[])
+      },[onAuthStateChanged])
 
   const authHandler = async (e) => {
     e.preventDefault();
@@ -66,8 +75,8 @@ function App() {
           console.log('Signed in!!')
           console.log(user);
           const email = user.email;
-          setuserID({userID : user.uid})
-          setUser({ userID, email, type });
+          setUser({ user, formData });
+          setLoggedIn(true);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -89,8 +98,8 @@ function App() {
             const user = userCredential.user;
             const userId = user.uid;
             console.log(user)
-            setuserID({userID : user.uid})
-            setUser({ userId, email, type,lname,fname });
+            setUser({ user, email, type,lname,fname });
+            setLoggedIn(true)
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -100,7 +109,6 @@ function App() {
             console.log('error message',errorMessage)
         });
       }
-      console.log(user)
   }
 
   const showP = (e) => {
@@ -115,20 +123,27 @@ function App() {
     
   }
 
-  const logOut =()=>{
-    signOut(auth).then(() => {
-      // Sign-out successful.
+  const logOut = async ()=>{
+    await signOut(auth).then(() => {
+      setUser({})
+      setLoggedIn(false)
     }).catch((error) => {
       // An error happened.
     });
   }
+
+  const isUser=()=>{
+    console.log(auth.currentUser);
+  }
+  console.log(auth.currentUser);
+  console.log(user.uid)
   return (
     <Router>
       <div className="App">
         <nav className="navbar navbar-expand-lg navbar-light fixed-top">
           <div className="container">
             <Link className="navbar-brand" to={'/sign-in'}>
-              positronX
+              MaximusX
             </Link>
             <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
               <ul className="navbar-nav ml-auto">
@@ -152,6 +167,11 @@ function App() {
                     Sign Out
                   </Link>
                 </li>
+                <li className="nav-item" onClick={logOut}>
+                  <button onClick={isUser}>
+                    Is User?
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
@@ -159,12 +179,12 @@ function App() {
 
         <div className="auth-wrapper">
           <div className="auth-inner">
-
             <Routes>
-              <Route exact path="/" element={<Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
-              <Route path="/sign-in" element={<Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
-              <Route path="/sign-up" element={<SignUp authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route exact path="/" element={auth.currentUser !== null ? <Navigate to={`/user/${user.user.uid}`} replace={true} /> : <Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/sign-in" element={auth.currentUser? <Navigate to={`/user/${user.user.uid}`} replace={true} /> :<Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/sign-up" element={auth.currentUser ? <Navigate to={`/user/${user.user.uid}`} replace={true} /> :<SignUp authHandler={authHandler} showP={showP} inputType={inputType}/>} />
               <Route path="/admin" element={<Admin authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/user/:uid" element={<UserProfile user={user}/>} />
             </Routes>
           </div>
         </div>

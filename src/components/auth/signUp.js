@@ -1,4 +1,4 @@
-import React, { Component,useState } from 'react'
+import React, { Component } from 'react'
 
 export default class SignUp extends Component {
 
@@ -7,30 +7,6 @@ export default class SignUp extends Component {
     console.log(props)
     
   }
-
-  //  authHandler = (e)=>{
-  //   e.preventDefault();
-  //   const elements = e.target;
-  //   const formData = {};
-  //       Array.from(elements).forEach(field =>{
-  //           if(!field.name) return;
-  //           formData[field.name] = field.value;
-  //           formData["type"] = "signup";
-  //       })
-  //     console.log(formData) 
-  // }
-
-  // showP(e){
-  //   var show = (e.target.parentElement.nextSibling.type)
-  //   if(show === "password"){
-  //     this.setState({inputType:"text"})
-  //   } else{
-  //     this.setState({inputType:"password"})
-  //   }
-    
-  // }
-
-
   render() {
     console.log(this.props.inputType)
     return (
