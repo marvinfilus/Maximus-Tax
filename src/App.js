@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState,createContext, useEffect} from "react";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
@@ -8,6 +8,31 @@ import Admin from './components/admin.js'
 
 
 function App() {
+  const [inputType,setInputType] = useState('password');
+
+  const authHandler = (e) => {
+    e.preventDefault();
+    const elements = e.target;
+    const formData = {};
+        Array.from(elements).forEach(field =>{
+            if(!field.name) return;
+            formData[field.name] = field.value;
+            formData["type"] = "signup";
+        })
+      console.log(formData) 
+  }
+
+  const showP = (e) => {
+    console.log(e.target.parentElement.nextSibling,show)
+    var show = (e.target.parentElement.nextSibling.type)
+    if(show === "password"){
+      setInputType({inputType:"text"})
+      console.log(inputType)
+    } else{
+      setInputType({inputType:"password"})
+    }
+    
+  }
   return (
     <Router>
       <div className="App">
@@ -40,11 +65,12 @@ function App() {
 
         <div className="auth-wrapper">
           <div className="auth-inner">
+
             <Routes>
-              <Route exact path="/" element={<Login />} />
-              <Route path="/sign-in" element={<Login />} />
-              <Route path="/sign-up" element={<SignUp />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route exact path="/" element={<Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/sign-in" element={<Login authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/sign-up" element={<SignUp authHandler={authHandler} showP={showP} inputType={inputType}/>} />
+              <Route path="/admin" element={<Admin authHandler={authHandler} showP={showP} inputType={inputType}/>} />
             </Routes>
           </div>
         </div>

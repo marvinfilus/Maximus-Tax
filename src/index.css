@@ -97,3 +97,8 @@ html,
 .forgot-password a {
   color: #167bff;
 }
+
+.pass-control{
+  justify-content: space-between;
+  font-size: small;
+}
