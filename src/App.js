@@ -12,6 +12,8 @@ import Admin from './components/admin.js'
 
 function App() {
   const [inputType,setInputType] = useState('password');
+  const [user,setUser] = useState({});
+  const [userID,setuserID] = useState("");
 
   const authHandler = (e) => {
     e.preventDefault();
@@ -33,7 +35,16 @@ function App() {
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
-          console.log('Signed in!!' + user)
+          console.log('Signed in!!')
+          console.log(user);
+          const email = user.email;
+          setuserID({userID : user.uid})
+          setUser({
+            userID,
+            email
+          });
+
+          console.log(user);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -74,7 +85,7 @@ function App() {
     
   }
 
-  const signOut =()=>{
+  const logOut =()=>{
     signOut(auth).then(() => {
       // Sign-out successful.
     }).catch((error) => {
@@ -106,7 +117,7 @@ function App() {
                     Admin
                   </Link>
                 </li>
-                <li className="nav-item" onClick={signOut}>
+                <li className="nav-item" onClick={logOut}>
                   <Link className="nav-link" to={'/'}>
                     Sign Out
                   </Link>
