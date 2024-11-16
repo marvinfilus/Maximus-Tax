@@ -2,29 +2,16 @@ import React, { Component,useRef } from 'react';
 
 export default class Login extends Component {
 
-  componentDidMount(){
-    console.log('ys')
-  }
-  componentWillReceiveProps(){
+    constructor(props){
+      super(props)
+      console.log(props)
+    }
 
-  }
-
-  handleSubmit(e){
-    e.preventDefault();
-    const elements = e.target;
-    const formData = {};
-        Array.from(elements).forEach(field =>{
-            if(!field.name) return;
-            formData[field.name] = field.value;
-        })
-      console.log(formData) 
-  }
-
-  
   render() {
     return (
-      <form className="signIn-Form" onSubmit={this.handleSubmit}>
+      <form className="signIn-Form" onSubmit={this.props.authHandler}>
         <h3>Sign In</h3>
+        <input style={{"display":"none"}} name="type" value={"login"} readOnly/>
 
         <div className="mb-3">
           <label>Email address</label>

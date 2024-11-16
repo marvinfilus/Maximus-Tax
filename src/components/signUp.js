@@ -4,9 +4,6 @@ export default class SignUp extends Component {
 
   constructor(props){
     super(props)
-    this.state = {
-      inputType:"password"
-    }
     console.log(props)
     
   }
@@ -39,7 +36,7 @@ export default class SignUp extends Component {
     return (
       <form onSubmit={this.props.authHandler}>
         <h3>Sign Up</h3>
-
+        <input style={{"display":"none"}} name="type" value={"signup"} readOnly/>
         <div className="mb-3">
           <label>First name</label>
           <input
@@ -57,7 +54,6 @@ export default class SignUp extends Component {
           name='lname'
           />
         </div>
-
         <div className="mb-3">
           <label>Email address</label>
           <input

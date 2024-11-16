@@ -19,6 +19,7 @@ export default class Admin extends Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <h3>Admin Sign In</h3>
+        <input style={{"display":"none"}} name="type" value={"admin"} readOnly/>
 
         <div className="mb-3">
           <label>Email address</label>

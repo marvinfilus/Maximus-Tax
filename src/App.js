@@ -1,6 +1,9 @@
 import React, {useState,createContext, useEffect} from "react";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { createUserWithEmailAndPassword , signInWithEmailAndPassword,signOut} from "firebase/auth";
+import {auth} from './config/firebase';
+import {getDatabase,ref,set,push} from "firebase/database"
 import './App.css';
 import Login from './components/login.js'
 import SignUp from './components/signUp.js'
@@ -17,9 +20,46 @@ function App() {
         Array.from(elements).forEach(field =>{
             if(!field.name) return;
             formData[field.name] = field.value;
-            formData["type"] = "signup";
         })
-      console.log(formData) 
+      console.log(formData);
+      if(formData.type ==="admin"){
+        const email = formData.email; 
+        const password = formData.password;
+
+      }else if(formData.type ==="login"){
+        const email = formData.email; 
+        const password = formData.password;
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in 
+          const user = userCredential.user;
+          console.log('Signed in!!' + user)
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log("not logged in")
+          console.log('error code',errorCode)
+          console.log('error message',errorMessage)
+      });
+      }else if(formData.type ==="signup"){
+        const email = formData.email; 
+        const password = formData.password;
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed up 
+            const user = userCredential.user;
+            console.log(user)
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log("not logged in")
+            console.log('error code',errorCode)
+            console.log('error message',errorMessage)
+        });
+      }
+
   }
 
   const showP = (e) => {
@@ -32,6 +72,14 @@ function App() {
       setInputType({inputType:"password"})
     }
     
+  }
+
+  const signOut =()=>{
+    signOut(auth).then(() => {
+      // Sign-out successful.
+    }).catch((error) => {
+      // An error happened.
+    });
   }
   return (
     <Router>
@@ -56,6 +104,11 @@ function App() {
                 <li className="nav-item">
                   <Link className="nav-link" to={'/admin'}>
                     Admin
+                  </Link>
+                </li>
+                <li className="nav-item" onClick={signOut}>
+                  <Link className="nav-link" to={'/'}>
+                    Sign Out
                   </Link>
                 </li>
               </ul>
